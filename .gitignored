@@ -1,0 +1,8 @@
+# Project specific
+data/
+models/
+.env
+*.pt
+*.pkl
+*.h5
+notebooks/.ipynb_checkpoints/
