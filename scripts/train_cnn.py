@@ -35,12 +35,16 @@ class GenreCNN(nn.Module):
         x = self.ReLU(self.fc1(x))
         x = self.fc2(x)
         return x
+
+TRAIN = False  # Set to True to retrain, False to just evaluate
+
 if __name__ == "__main__":
 
     dataset=GTZANDataset('data/genres_original')
     train_size=int(0.8*len(dataset))
     test_size=len(dataset)-train_size
-    train_dataset, test_dataset = torch.utils.data.random_split(dataset, [train_size, test_size])
+    train_dataset, test_dataset = torch.utils.data.random_split(dataset, [train_size, test_size],
+                                                                generator=torch.Generator().manual_seed(42))
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
     test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
     # Set the device to GPU if available, otherwise use CPU (AMD GPU support is the same 
@@ -57,27 +61,27 @@ if __name__ == "__main__":
     optimizer = optim.Adam(model.parameters(), lr=0.001)
     num_epochs = 30
 
-
-    # Train the CNN model
-    for epoch in range(num_epochs):
-        model.train()
-        running_loss = 0.0
-        correct = 0  # Initialize correct predictions counter
-        for inputs, labels in train_loader:
-            inputs, labels = inputs.to(device), labels.to(device)
-            optimizer.zero_grad()
-            outputs = model(inputs)
-            loss = criterion(outputs, labels)
-            loss.backward()
-            optimizer.step()
-            _, predicted = torch.max(outputs,1)
-            correct += (predicted == labels).sum().item()
-            running_loss += loss.item() * inputs.size(0)
-        epoch_loss = running_loss / len(train_loader.dataset)
-        accuracy = correct / len(train_loader.dataset)
-        print(f'Epoch {epoch+1}/{num_epochs}, Batch Loss: {loss.item():.4f}, Accuracy: {accuracy:.4f}') 
-    torch.save(model.state_dict(), 'models/cnn_model.pth')
-    model.load_state_dict(torch.load('models/cnn_model.pth', map_location=device))
+    if TRAIN:
+        # Train the CNN model
+        for epoch in range(num_epochs):
+            model.train()
+            running_loss = 0.0
+            correct = 0  # Initialize correct predictions counter
+            for inputs, labels in train_loader:
+                inputs, labels = inputs.to(device), labels.to(device)
+                optimizer.zero_grad()
+                outputs = model(inputs)
+                loss = criterion(outputs, labels)
+                loss.backward()
+                optimizer.step()
+                _, predicted = torch.max(outputs,1)
+                correct += (predicted == labels).sum().item()
+                running_loss += loss.item() * inputs.size(0)
+            epoch_loss = running_loss / len(train_loader.dataset)
+            accuracy = correct / len(train_loader.dataset)
+            print(f'Epoch {epoch+1}/{num_epochs}, Batch Loss: {loss.item():.4f}, Accuracy: {accuracy:.4f}') 
+        torch.save(model.state_dict(), 'models/cnn_model.pth')
+    model.load_state_dict(torch.load('models/cnn_model.pth', map_location=device, weights_only=True))
     # Evaluate the model on the test set
     model.eval()
     all_labels = []
