@@ -6,7 +6,6 @@ numpy
 scikit-learn
 
 # Deep Learning
---index-url https://download.pytorch.org/whl/rocm7.2
 torch
 torchaudio
 
@@ -29,5 +28,3 @@ seaborn
 jupyter
 tqdm
 sqlalchemy
-torchcodec
-

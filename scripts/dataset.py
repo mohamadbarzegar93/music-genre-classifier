@@ -1,6 +1,8 @@
 import torch
 import torch.utils.data as data
-import torchaudio
+"""import torchaudio"""
+import librosa
+import numpy as np
 import os
 import pathlib
 
@@ -14,15 +16,8 @@ class GTZANDataset(data.Dataset):
         # Get sorted list of genre directories
         self.genres = sorted([g.name for g in self.root_dir.iterdir() if g.is_dir()])
         # GTZAN dataset has a sample rate of 22050 Hz
-        self.sample_rate = 22050   
-        # Initialize Mel spectrogram transformer
-        self.mel_transformer = torchaudio.transforms.MelSpectrogram(
-        sample_rate=self.sample_rate,
-        n_mels=128,
-        n_fft=2048
-        )
-        # Initialize amplitude to decibel transformer    
-        self.db_transformer = torchaudio.transforms.AmplitudeToDB()
+        self.sample_rate = 22050
+
         # Iterate through each genre directory and collect file paths and labels
         for idx, genre in enumerate(self.genres):
             genre_dir = self.root_dir / genre
@@ -33,27 +28,22 @@ class GTZANDataset(data.Dataset):
                     self.labels.append(idx)  # Use the index of the genre as the label
     def __len__(self):        return len(self.file_paths)
     def __getitem__(self, idx):
-        #Load the audio file
+        
         file_path = self.file_paths[idx]
-        waveform, sample_rate = torchaudio.load(file_path)
-        # If the audio has more than one channel, convert it to mono by averaging the channels
-        if waveform.shape[0] > 1:
-            waveform = torch.mean(waveform, dim=0, keepdim=True)
-        # Resample the audio if the sample rate is different from the expected sample rate
-        if sample_rate != self.sample_rate:
-            resampler = torchaudio.transforms.Resample(orig_freq=sample_rate, new_freq=self.sample_rate)
-            waveform = resampler(waveform)
-        # Convert the audio waveform to a Mel spectrogram
-        mel_spec = self.mel_transformer(waveform)
-        # Convert the Mel spectrogram to decibel scale
-        mel_spec_db = self.db_transformer(mel_spec)
-        #Resize the Mel spectrogram to a fixed size (e.g., 128x128)
-        mel_spec_db = torch.nn.functional.interpolate(mel_spec_db.unsqueeze(0), size=(128, 128), mode='bilinear', align_corners=False).squeeze(0)
-        # Apply any additional transformations if provided
+        waveform, _ = librosa.load(file_path, sr=self.sample_rate, mono=True)
+        mel_spec = librosa.feature.melspectrogram(y=waveform, sr=self.sample_rate, n_mels=128, n_fft=2048)
+        mel_spec_db = librosa.power_to_db(mel_spec, ref=np.max)
+        mel_spec_tensor = torch.tensor(mel_spec_db).unsqueeze(0).float()
+        mel_spec_tensor = torch.nn.functional.interpolate(
+            mel_spec_tensor.unsqueeze(0),
+            size=(128, 128),
+            mode='bilinear',
+            align_corners=False
+        ).squeeze(0)
         if self.transform:
-            mel_spec_db = self.transform(mel_spec_db)
+            mel_spec_tensor = self.transform(mel_spec_tensor)
         label = self.labels[idx]
-        return mel_spec_db, label
+        return mel_spec_tensor, label
 
 if __name__ == "__main__":
     # Example usage
