@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from scripts.dataset import GTZANDataset
 import torch
 from torch.utils.data import DataLoader
@@ -31,3 +35,18 @@ class GenreCNN(nn.Module):
         x = self.ReLU(self.fc1(x))
         x = self.fc2(x)
         return x
+    
+dataset=GTZANDataset('data/genres_original')
+train_size=int(0.8*len(dataset))
+test_size=len(dataset)-train_size
+train_dataset, test_dataset = torch.utils.data.random_split(dataset, [train_size, test_size])
+train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+# Set the device to GPU if available, otherwise use CPU (AMD GPU support is the same 
+#as CUDA in PyTorch, so it will automatically use the AMD GPU if it's available and
+#  properly configured)
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+#Check if the computation device
+print(f"Using device: {device}")
+print(f"Training batches: {len(train_loader)}, Testing batches: {len(test_loader)}")
+model = GenreCNN(num_classes=10).to(device)

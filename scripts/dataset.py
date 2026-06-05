@@ -16,7 +16,11 @@ class GTZANDataset(data.Dataset):
         # GTZAN dataset has a sample rate of 22050 Hz
         self.sample_rate = 22050   
         # Initialize Mel spectrogram transformer
-        self.mel_transformer = torchaudio.transforms.MelSpectrogram(sample_rate=22050)
+        self.mel_transformer = torchaudio.transforms.MelSpectrogram(
+        sample_rate=self.sample_rate,
+        n_mels=128,
+        n_fft=2048
+        )
         # Initialize amplitude to decibel transformer    
         self.db_transformer = torchaudio.transforms.AmplitudeToDB()
         # Iterate through each genre directory and collect file paths and labels

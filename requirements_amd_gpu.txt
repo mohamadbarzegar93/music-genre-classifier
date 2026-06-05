@@ -1,0 +1,33 @@
+# Data
+pandas
+numpy
+
+# Classical ML
+scikit-learn
+
+# Deep Learning
+--index-url https://download.pytorch.org/whl/rocm7.2
+torch
+torchaudio
+
+# Audio Processing
+librosa
+
+# Computer Vision (for spectrogram images later)
+opencv-python
+
+# API (for later)
+fastapi
+uvicorn
+
+# Utilities
+python-dotenv
+pydantic
+pydantic-settings
+matplotlib
+seaborn
+jupyter
+tqdm
+sqlalchemy
+torchcodec
+
