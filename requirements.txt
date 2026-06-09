@@ -30,3 +30,6 @@ tqdm
 sqlalchemy
 torchcodec
 python-multipart
+pytest
+httpx
+httpx2
