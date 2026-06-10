@@ -60,5 +60,5 @@ Notes
 AMD GPU (ROCm) was attempted during development — PyTorch pip builds do not currently support gfx1012 architecture. CPU training is used instead.
 Training takes approximately 5-10 minutes on CPU for 30 epochs.
 
-
+Live URL is:
 https://music-genre-api.purpledune-37dd4706.germanywestcentral.azurecontainerapps.io
