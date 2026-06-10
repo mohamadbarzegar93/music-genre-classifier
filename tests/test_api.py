@@ -13,7 +13,7 @@ def test_health_check():
     assert "message" in response.json()
 
 def test_predict_valid_file():
-    with open("data/genres_original/blues/blues.00000.wav", "rb") as f:
+    with open("tests/fixtures/blues.00000.wav", "rb") as f:
         response = client.post("/predict", files={"file":f})
     assert response.status_code == 200
     data = response.json()
