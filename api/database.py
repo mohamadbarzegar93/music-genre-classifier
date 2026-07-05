@@ -1,9 +1,17 @@
 from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime
 from sqlalchemy.orm import declarative_base, sessionmaker
 from datetime import datetime, timezone
+import os
+from dotenv import load_dotenv
 
-#SQLAlchemy setup
-DATABASE_URL = "sqlite:///./predictions.db"
+load_dotenv()
+
+user = os.getenv("POSTGRES_USER")
+psswrd = os.getenv("POSTGRES_PASSWORD")
+db_file = os.getenv("POSTGRES_DB")
+
+#Postgres setup
+DATABASE_URL = f'postgresql://{user}:{psswrd}@localhost/{db_file}'
 engine = create_engine(DATABASE_URL)
 Base = declarative_base()
 SessionLocal = sessionmaker(bind = engine)
