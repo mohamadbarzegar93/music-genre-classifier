@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: genre-classifier-config
+data:
+  LOG_LEVEL: "INFO"
+  DB_HOST: "postgres-svc"
+  POSTGRES_USER: "genreuser"
+  POSTGRES_PASSWORD: "genrepass"
+  POSTGRES_DB: "genredb"
+  

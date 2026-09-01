@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: genre-classifier
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: genre-classifier
+  template:
+    metadata:
+      labels:
+        app: genre-classifier
+    spec:
+      containers:
+        - name: genre-classifier
+          image: music-genre-classifier:local
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: genre-classifier-config

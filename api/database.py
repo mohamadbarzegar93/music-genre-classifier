@@ -9,9 +9,10 @@ load_dotenv()
 user = os.getenv("POSTGRES_USER")
 psswrd = os.getenv("POSTGRES_PASSWORD")
 db_file = os.getenv("POSTGRES_DB")
+db_host = os.getenv("DB_HOST", "localhost")
 
 #Postgres setup
-DATABASE_URL = f'postgresql://{user}:{psswrd}@localhost/{db_file}'
+DATABASE_URL = f'postgresql://{user}:{psswrd}@{db_host}/{db_file}'
 engine = create_engine(DATABASE_URL)
 Base = declarative_base()
 SessionLocal = sessionmaker(bind = engine)
